@@ -1,69 +1,43 @@
-#!/usr/bin/env python
-"""
-This script processes the data needed for analysis,
-putting it into the same format and merging it
-all together
-"""
+import yaml, os
 import os
+import fnmatch
 import pandas as pd
-import json
-import src.utilities as utils
+import numpy as np
+
+with open('conf/create_dataset.yaml', 'r') as file:
+    conf = yaml.safe_load(file)
 
 
-def clean_ons_time_series(key, dataset_id, timeseries_id):
-    """
-    Opens raw data (in json) as downloaded from ONS API
-    and puts it into a clean monthly and tidy format.
-    """
-    config = utils.read_config()
-    raw_file_name = os.path.join(config['data']['rawFilePath'],
-                                 key+'_data.txt')
-    with open(raw_file_name) as json_file:
-        data = json.load(json_file)
-    title_text = data['description']['title']
-    print("Code output:\n")
-    print(title_text)
-    # Check if monthly data exist; if not go on to quarterly
-    if data['months']:
-        df = pd.DataFrame(pd.io.json.json_normalize(data['months']))
-        df['date'] = pd.to_datetime(df['date']) + pd.offsets.MonthEnd(0)
-        df = df.set_index('date')
-        df['value'] = df['value'].astype(float)
-    else:
-        # Assume quarterly
-        df = pd.DataFrame(pd.io.json.json_normalize(data['quarters']))
-        df['date'] = (pd.to_datetime(df['date'].str.replace(' ', '')) +
-                      pd.offsets.QuarterEnd(0))
-        df = df.set_index('date')
-        df['value'] = df['value'].astype(float)
-        # Upscale to monthly
-        df = df['value'].resample('M').interpolate(method='time')
-        df = pd.DataFrame(df)
-    cols_to_drop = [x for x in df.columns if x != 'value']
-    df = df.drop(cols_to_drop, axis=1)
-    df['timeseries_id'] = timeseries_id
-    df['dataset_id'] = dataset_id
-    df['value_name'] = key
+def process_data(file_path):
+
+    df = pd.read_csv(file_path, header=None, names=['Date', 'Open', 'High', 'Low', 'Close', 'Volume', 'Open Interest'])
+    df['Date'] = pd.to_datetime(df['Date'])  
+    df.sort_values('Date', inplace=True)
+    df.set_index('Date', inplace=True)
+    ticker = os.path.basename(file_path).split('.')[0]
+    df.columns = pd.MultiIndex.from_product([[ticker], df.columns])
     return df
 
+def load_data(dataset_location, dataset_assets, dataset_extension=None):
 
-def create_clean_data():
-    """
-    Master function which takes all raw series, cleans them,
-    and outputs to a flat file
-    """
-    # Get config file
-    config = utils.read_config()
-    # Create empty list for vector of dataframes
-    df_vec = []
-    for key in list(config['timeSeries'].keys()):
-        df_vec.append(clean_ons_time_series(key, *config['timeSeries'][key]))
-    # Put this into tidy format
-    df = pd.concat(df_vec, axis=0)
-    # Write it to clean data
-    df.to_csv(os.path.join(config['data']['clnFilePath'], 'ts_data.csv'))
-
+    dfs = []
+    for filename in os.listdir(dataset_location):
+        if filename[:2] in assets:
+            file_path = os.path.join(directory, filename)
+            df = process_data(file_path)
+            dfs.append(df)
+    df = pd.concat(dfs, axis=1)
+    return df
 
 if __name__ == "__main__":
-    # Master function
-    create_clean_data()
+     dataset_type = conf['dataset_type']
+     print(dataset_type)
+
+    # if dataset_type == 'pinnacle':        
+    #     files_location = conf['pinnacle_location']
+    #     assets = conf['pinnacle_assets']   
+    #     files_extension = conf['pinnacle_extension']
+    #     df = load_data(files_location, assets, files_extension)
+    #     print(df)
+    # else:
+    #     print('hi')
