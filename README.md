@@ -48,3 +48,4 @@ Or, from within an IDE, run the contents of src/master.py (but run it as if from
 - Go to the field "pdfTeX"
 - In the LaTeX Input Field add ``` --shell-escape``` at the end so that it changes from ```pdflatex --file-line-error --synctex=1```
 to ```pdflatex --file-line-error --synctex=1 --shell-escape```
+# academic_causal_portfolio
