@@ -6,4 +6,4 @@ pinnacle_extension: '_RAD'
 
 
 max_zero_days_per_future: 160
-max_zero_futures_per_day_ratio: 0.100
+max_zero_futures_per_day_ratio: 0.10
