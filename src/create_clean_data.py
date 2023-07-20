@@ -47,7 +47,7 @@ def filter_zeros(df, max_zero_days_per_future, max_zero_futures_per_day_ratio):
     return df_filtered
 
 def fill_zeros(df):
-    df.replace(0, np.nan, inplace=True)
+    df.replace(0.0, np.nan, inplace=True)
     df.fillna(method='ffill', inplace=True)
     df.fillna(method='bfill', inplace=True)
     return df
@@ -71,7 +71,7 @@ if __name__ == "__main__":
                           max_zero_days_per_future = conf['max_zero_days_per_future'], 
                           max_zero_futures_per_day_ratio = conf['max_zero_futures_per_day_ratio'])
                           
-    prices = fill_zeros(df = prices)
+    prices = fill_zeros(prices)
 
     print(prices.head())
     prices.to_pickle(f'cleaned/{conf["dataset_type"]}.pkl')

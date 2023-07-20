@@ -1,4 +1,41 @@
 dataset_type: 'pinnacle' # pinnacle, us_stocks
 
-pinnacle_location: 'cleaned/pinnacle.pkl' 
-pinnacle_assets: ['KW', 'MW', 'NR', 'W_', 'ZC', 'ZL', 'ZM', 'ZO', 'ZR', 'ZS', 'ZW', 'DA', 'ZF', 'ZT', 'ZZ', 'LB', 'ZG', 'ZI', 'ZP', 'ZA', 'ZK', 'AX', 'CA', 'DX', 'EN', 'ES', 'GI', 'LX', 'MD', 'NK', 'SC', 'DT', 'FB', 'GS', 'SS', 'TY', 'TU', 'US', 'UB', 'UZ', 'AN', 'BN', 'CN', 'EC', 'FN', 'JN', 'MP', 'SN', 'ZB', 'ZH', 'ZN', 'ZU']
+start_data: '2001-01-01'
+end_data: '2022-12-31'
+
+
+
+portfolio_method_config:
+  method: 'MV' # 'MV', 'equal_weights', 'random_weights' 'Causal_NG', MV', 'MAD', 'MSV', 'FLPM', 'SLPM', 'CVaR', 'WR', 'MDD', 'ADD', 'CDaR'
+  rebalancing: 22 # 'last_available_day_of_month', 'quarterly_last_available_day_of_month'
+  window_size: 252 # 252, 1260
+  
+
+mv_config:
+  method_mu: 'hist'
+  method_cov: 'hist'
+  model: 'Classic' 
+  rm: 'MV' 
+  obj: 'Sharpe'
+  rf: 0
+  l: 2
+  alpha: 0.05
+  hist: True
+  d_lib_const: 0.94
+  
+
+
+backtrader_config:
+  cash: 100000
+  commission: 0.005
+  slippage_perc: 0.005
+  riskfreerate: 0.0
+
+save_report: True
+
+
+
+pinnacle_config:
+  location: 'cleaned/pinnacle.pkl' 
+  assets: ['KW', 'MW', 'NR', 'W_', 'ZC', 'ZL', 'ZM', 'ZO', 'ZR', 'ZS', 'ZW', 'DA', 'ZF', 'ZT', 'ZZ', 'LB', 'ZG', 'ZI', 'ZP', 'ZA', 'ZK', 'AX', 'CA', 'DX', 'EN', 'ES', 'GI', 'LX', 'MD', 'NK', 'SC', 'DT', 'FB', 'GS', 'SS', 'TY', 'TU', 'US', 'UB', 'UZ', 'AN', 'BN', 'CN', 'EC', 'FN', 'JN', 'MP', 'SN', 'ZB', 'ZH', 'ZN', 'ZU']
+  industries: ['Grains', 'Grains', 'Grains', 'Grains', 'Grains', 'Grains', 'Grains', 'Grains', 'Grains', 'Grains', 'Grains', 'Meats', 'Meats', 'Meats', 'Meats', 'Wood fibre', 'Metals', 'Metals', 'Metals', 'Metals', 'Metals', 'Indexes', 'Indexes', 'Indexes', 'Indexes', 'Indexes', 'Indexes', 'Indexes', 'Indexes', 'Indexes', 'Indexes', 'Bonds', 'Bonds', 'Bonds', 'Bonds', 'Bonds', 'Bonds', 'Bonds', 'Bonds', 'Bonds', 'Currency', 'Currency', 'Currency', 'Currency', 'Currency', 'Currency', 'Currency', 'Currency', 'Oils', 'Oils', 'Oils', 'Oils']
