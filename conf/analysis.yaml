@@ -1,12 +1,12 @@
 dataset_type: 'pinnacle' # pinnacle, us_stocks
 
 start_data: '2001-01-01'
-end_data: '2022-12-31'
+end_data: '2004-12-31'
 
 
 
 portfolio_method_config:
-  method: 'MV' # 'MV', 'equal_weights', 'random_weights' 'Causal_NG', MV', 'MAD', 'MSV', 'FLPM', 'SLPM', 'CVaR', 'WR', 'MDD', 'ADD', 'CDaR'
+  method: 'grangers_causation_matrix' # 'MV', 'equal_weights', 'random_weights', 'grangers_causation_matrix', 'Causal_NG', MV', 'MAD', 'MSV', 'FLPM', 'SLPM', 'CVaR', 'WR', 'MDD', 'ADD', 'CDaR'
   rebalancing: 22 # 'last_available_day_of_month', 'quarterly_last_available_day_of_month'
   window_size: 252 # 252, 1260
   
@@ -22,6 +22,22 @@ mv_config:
   alpha: 0.05
   hist: True
   d_lib_const: 0.94
+
+
+grangers_causation_matrix_config:
+  maxlag: 35
+  test: 'ssr_chi2test'
+  method_mu: 'hist'
+  method_cov: 'hist'
+  model: 'Classic' 
+  rm: 'MV' 
+  obj: 'Sharpe'
+  rf: 0
+  l: 2
+  alpha: 0.05
+  hist: True
+  d_lib_const: 0.94
+
   
 
 
