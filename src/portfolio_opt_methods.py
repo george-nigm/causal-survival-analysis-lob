@@ -3,6 +3,18 @@ import pandas as pd
 import riskfolio as rp
 from statsmodels.tsa.stattools import grangercausalitytests
 
+
+def make_positive_definite(cov_matrix, epsilon=1e-2):
+    eigvals, eigvecs = np.linalg.eigh(cov_matrix)
+
+    if np.any(eigvals < epsilon):
+        eigvals[eigvals < epsilon] = epsilon        
+        positive_definite_cov = np.dot(eigvecs, np.dot(np.diag(eigvals), eigvecs.T))
+    else:
+        positive_definite_cov = cov_matrix
+
+    return positive_definite_cov
+
 def equal_weights(returns):
     n_assets = returns.shape[1]
     w = np.full(n_assets, 1.0 / n_assets)       
@@ -19,6 +31,9 @@ def random_weights(returns):
 
 def mv_portfolio(returns, mv_conf, constraints = [None, None]):
     port = rp.Portfolio(returns=returns)
+
+    print(f'\n{returns.index[0].date()}')
+    print(f'{returns.index[-1].date()}')
                 
     # # Add portfolio constraints
     # port.ainequality = constraints[0] # A
@@ -28,6 +43,8 @@ def mv_portfolio(returns, mv_conf, constraints = [None, None]):
     method_cov = mv_conf['method_cov']
 
     port.assets_stats(method_mu=method_mu, method_cov=method_cov, d=mv_conf['d_lib_const'])
+
+    # port.cov = make_positive_definite(port.cov)
 
     # -------------------------------------------------------------- #
     # DPhil
@@ -45,11 +62,11 @@ def mv_portfolio(returns, mv_conf, constraints = [None, None]):
     l = mv_conf['l'] # Risk aversion factor, only useful when obj is 'Utility'
     try:
         w = port.optimization(model=model, rm=rm, obj=obj, rf=rf, l=l, hist=hist)
-        print(f'\nweights successfully calculated')
+        print(f'weights successfully calculated')
     except:               
         w = None
-        print(f'\nweights index unsuccessful. weights.tail(1).T used.\n')
-    return w
+        print(f'weights index unsuccessful for {returns.index[0].date()}-{returns.index[-1].date()}. weights.tail(1).T used.\n')
+    return w, port.cov
         
 # -------------------------------------------------------------- #
 # My DPhil Functions
@@ -101,4 +118,4 @@ def grangers_causation_matrix_portfolio(returns, grangers_causation_matrix_confi
     except:               
         w = None
         print(f'\nweights index unsuccessful. weights.tail(1).T used.\n')
-    return w
+    return w, port.cov

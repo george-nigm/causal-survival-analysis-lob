@@ -1,7 +1,7 @@
 dataset_type: 'pinnacle' # pinnacle, us_stocks
 
-start_data: '2001-01-01'
-end_data: '2004-12-31'
+start_data: '2000-01-01'
+end_data: '2021-12-31'
 
 
 
@@ -25,7 +25,7 @@ mv_config:
 
 
 grangers_causation_matrix_config:
-  maxlag: 35
+  maxlag: 22
   test: 'ssr_chi2test'
   method_mu: 'hist'
   method_cov: 'hist'

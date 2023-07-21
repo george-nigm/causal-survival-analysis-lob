@@ -4,6 +4,7 @@ import numpy as np
 import backtrader as bt
 import riskfolio as rp
 import quantstats
+import pickle 
 from portfolio_opt_methods import equal_weights, random_weights, mv_portfolio, grangers_causation_matrix_portfolio
 
 with open('conf/analysis.yaml', 'r') as file:
@@ -12,27 +13,33 @@ with open('conf/analysis.yaml', 'r') as file:
 def get_portfolio_weights(returns, index_, full_conf):
 
     weights = pd.DataFrame([])
+    port_cov = {}
 
     for num, i in enumerate(index_):
         Y = returns.iloc[i-full_conf['portfolio_method_config']['window_size']:i,:] # taking last window_size days
 
         if full_conf['portfolio_method_config']['method'] == 'random_weights':
             w = random_weights(Y)
+            port_cov[f'{Y.index[0].date()}-{Y.index[-1].date()}'] = None
 
         if full_conf['portfolio_method_config']['method'] == 'equal_weights':
             w = equal_weights(Y)
+            port_cov[f'{Y.index[0].date()}-{Y.index[-1].date()}'] = None
 
         if full_conf['portfolio_method_config']['method'] == 'MV':            
-            w = mv_portfolio(Y, full_conf['mv_config'])
+            w , port_cov_window = mv_portfolio(Y, full_conf['mv_config'])
+            port_cov[f'{Y.index[0].date()}-{Y.index[-1].date()}'] = port_cov_window
         
         if full_conf['portfolio_method_config']['method'] == 'grangers_causation_matrix':            
-            w = grangers_causation_matrix_portfolio(Y, full_conf['grangers_causation_matrix_config'])
+            w, port_cov_window = grangers_causation_matrix_portfolio(Y, full_conf['grangers_causation_matrix_config'])
+            port_cov[f'{Y.index[0].date()}-{Y.index[-1].date()}'] = port_cov_window
             
         if w is None:
             w = weights.tail(1).T
         weights = pd.concat([weights, w.T], axis = 0)
+        
 
-    return weights
+    return weights, port_cov
 
 
 class AssetAllocation(bt.Strategy):
@@ -164,16 +171,16 @@ if __name__ == "__main__":
     rebalance_rows = [returns_dates.get_loc(x) for x in rebalance_days]
     # rebalance_rows = [returns_dates.get_loc(x) for x in rebalance_days if returns_dates.get_loc(x) > method_config['window_size']]
     print('\n', rebalance_rows)
-
+    print('\n', rebalance_days)
 
     # Weights calculation {#25f,4}
-    weights = get_portfolio_weights(returns = returns, 
+    weights, port_cov = get_portfolio_weights(returns = returns, 
                                     index_ = rebalance_rows,
                                     full_conf = conf
                                     )
 
-
     rebalance_rows = [x - method_config['window_size'] for x in rebalance_rows]
+
     
     weights.index = rebalance_rows
     print('\n', weights)
@@ -193,8 +200,14 @@ if __name__ == "__main__":
 
     strat = results[0]
     portfolio_stats = strat.analyzers.getbyname('PyFolio')
-    returns, positions, transactions, gross_lev = portfolio_stats.get_pf_items()
-    returns.index = returns.index.tz_convert(None)
+    returns_bt, positions, transactions, gross_lev = portfolio_stats.get_pf_items()
+    returns_bt.index = returns_bt.index.tz_convert(None)
+
     if conf['save_report'] == True:
-        quantstats.reports.html(returns, output=f'output-scratch/{conf["dataset_type"]}-{conf["start_data"][:4]}-{conf["end_data"][:4]}-{method_config["method"]}.html', title=f'{conf["dataset_type"]}-{conf["start_data"][:4]}-{conf["end_data"][:4]}-{method_config["method"]}')
+        quantstats.reports.html(returns_bt, output=f'output-scratch/{conf["dataset_type"]}-{conf["start_data"][:4]}-{conf["end_data"][:4]}-{method_config["method"]}.html', title=f'{conf["dataset_type"]}-{conf["start_data"][:4]}-{conf["end_data"][:4]}-{method_config["method"]}')
         print(f'file saved: output-scratch/{conf["dataset_type"]}-{conf["start_data"][:4]}-{conf["end_data"][:4]}-{method_config["method"]}.html')
+
+        returns.to_csv(f'output-scratch/returns-{conf["dataset_type"]}-{conf["start_data"][:4]}-{conf["end_data"][:4]}-{method_config["method"]}.csv')
+
+        with open(f'output-scratch/port_cov-{conf["dataset_type"]}-{conf["start_data"][:4]}-{conf["end_data"][:4]}-{method_config["method"]}.pkl', 'wb') as f:
+            pickle.dump(port_cov, f)
