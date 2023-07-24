@@ -62,7 +62,7 @@ def mv_portfolio(returns, mv_conf, constraints = [None, None]):
     l = mv_conf['l'] # Risk aversion factor, only useful when obj is 'Utility'
     try:
         w = port.optimization(model=model, rm=rm, obj=obj, rf=rf, l=l, hist=hist)
-        print(f'weights successfully calculated')
+        print(f'weights successfully calculated for {returns.index[0].date()}-{returns.index[-1].date()}')
     except:               
         w = None
         print(f'weights index unsuccessful for {returns.index[0].date()}-{returns.index[-1].date()}. weights.tail(1).T used.\n')
@@ -88,6 +88,9 @@ def grangers_causation_matrix(data, variables, maxlag, test='ssr_chi2test', verb
 def grangers_causation_matrix_portfolio(returns, grangers_causation_matrix_config, constraints = [None, None]):
 
     port = rp.Portfolio(returns=returns)
+
+    print(f'\n{returns.index[0].date()}')
+    print(f'{returns.index[-1].date()}')
                 
     # # Add portfolio constraints
     # port.ainequality = constraints[0] # A

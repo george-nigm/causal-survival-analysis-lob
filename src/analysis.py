@@ -6,9 +6,30 @@ import riskfolio as rp
 import quantstats
 import pickle 
 from portfolio_opt_methods import equal_weights, random_weights, mv_portfolio, grangers_causation_matrix_portfolio
+import os
+import re
+import datetime
+import logging
+from create_clean_data import filter_zeros, fill_zeros
 
 with open('conf/analysis.yaml', 'r') as file:
     conf = yaml.safe_load(file)
+
+def create_exp_folder(output_folder, special_label=''):
+    os.makedirs(output_folder, exist_ok=True)
+    dirs = [d for d in os.listdir(output_folder) if os.path.isdir(os.path.join(output_folder, d))]
+    exp_nums = [int(re.match(r'(\d+)', d).group(1)) for d in dirs if re.match(r'(\d+)', d)]
+    if exp_nums:
+        experiment_num = max(exp_nums) + 1
+    else:
+        experiment_num = 1
+    now = datetime.datetime.now()
+    date_time = now.strftime("%d.%m | %H-%M |")
+    directory = f"{experiment_num}. {date_time} {special_label}"
+    full_path = os.path.join(output_folder, directory)
+    if not os.path.exists(full_path):
+        os.makedirs(full_path)
+    return full_path
 
 def get_portfolio_weights(returns, index_, full_conf):
 
@@ -127,7 +148,9 @@ if __name__ == "__main__":
 
     prices = prices[prices.index >= conf['start_data']]
     prices = prices[prices.index <= conf['end_data']]
-    
+
+
+
     assets_prices = []
     excluded_tickers = []
 
@@ -170,7 +193,7 @@ if __name__ == "__main__":
     print('\n', returns_dates)
     rebalance_rows = [returns_dates.get_loc(x) for x in rebalance_days]
     # rebalance_rows = [returns_dates.get_loc(x) for x in rebalance_days if returns_dates.get_loc(x) > method_config['window_size']]
-    print('\n', rebalance_rows)
+    print('\n', len(rebalance_rows), rebalance_rows)
     print('\n', rebalance_days)
 
     # Weights calculation {#25f,4}
@@ -204,10 +227,15 @@ if __name__ == "__main__":
     returns_bt.index = returns_bt.index.tz_convert(None)
 
     if conf['save_report'] == True:
-        quantstats.reports.html(returns_bt, output=f'output-scratch/{conf["dataset_type"]}-{conf["start_data"][:4]}-{conf["end_data"][:4]}-{method_config["method"]}.html', title=f'{conf["dataset_type"]}-{conf["start_data"][:4]}-{conf["end_data"][:4]}-{method_config["method"]}')
-        print(f'file saved: output-scratch/{conf["dataset_type"]}-{conf["start_data"][:4]}-{conf["end_data"][:4]}-{method_config["method"]}.html')
 
-        returns.to_csv(f'output-scratch/returns-{conf["dataset_type"]}-{conf["start_data"][:4]}-{conf["end_data"][:4]}-{method_config["method"]}.csv')
+        formatted_string = "{}-{}-{}-{}".format(conf["dataset_type"], conf["start_data"][:4], conf["end_data"][:4], method_config["method"])
+        exp_folder = create_exp_folder(output_folder = "output-scratch", special_label=formatted_string)
+        
+        quantstats.reports.html(returns_bt, output=f'{exp_folder}/report.html', title=f'{formatted_string}')        
 
-        with open(f'output-scratch/port_cov-{conf["dataset_type"]}-{conf["start_data"][:4]}-{conf["end_data"][:4]}-{method_config["method"]}.pkl', 'wb') as f:
+        returns.to_csv(f'{exp_folder}/returns.csv')
+
+        with open(f'{exp_folder}/port_cov.pkl', 'wb') as f:
             pickle.dump(port_cov, f)
+
+        print(f'files saved: {exp_folder}/report.html')

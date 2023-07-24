@@ -1,7 +1,9 @@
 dataset_type: 'pinnacle' # pinnacle, us_stocks
 
-pinnacle_location: 'raw/CLCDATA' 
+pinnacle_location: 'raw/CLCDATA_21_07_2023' 
 pinnacle_assets: ['KW', 'MW', 'NR', 'W_', 'ZC', 'ZL', 'ZM', 'ZO', 'ZR', 'ZS', 'ZW', 'DA', 'ZF', 'ZT', 'ZZ', 'LB', 'ZG', 'ZI', 'ZP', 'ZA', 'ZK', 'AX', 'CA', 'DX', 'EN', 'ES', 'GI', 'LX', 'MD', 'NK', 'SC', 'DT', 'FB', 'GS', 'SS', 'TY', 'TU', 'US', 'UB', 'UZ', 'AN', 'BN', 'CN', 'EC', 'FN', 'JN', 'MP', 'SN', 'ZB', 'ZH', 'ZN', 'ZU']
+
+
 pinnacle_extension: '_RAD'
 
 

@@ -26,8 +26,11 @@ def load_data(dataset_location, dataset_assets, dataset_extension = ''):
             file_path = os.path.join(dataset_location, filename)
             df = process_data(file_path, dataset_extension)
             dfs.append(df)
+    print(len(dfs))
     df = pd.concat(dfs, axis=1)
     return df
+
+
 
 def adjust_and_swap_index(df):
     
@@ -40,9 +43,23 @@ def adjust_and_swap_index(df):
 def filter_zeros(df, max_zero_days_per_future, max_zero_futures_per_day_ratio):
     zero_days_per_future = (df == 0).sum(axis=0)
     zero_futures_per_day = (df == 0).sum(axis=1)
+
+    print(zero_days_per_future)
+    print(zero_futures_per_day)
+
     zero_days_per_future_ratio = zero_days_per_future.div(df.shape[0])
     zero_futures_per_day_ratio = zero_futures_per_day.div(df.shape[1])
-    df_filtered = df.loc[:, zero_days_per_future_ratio < max_zero_days_per_future / df.shape[0]]
+
+    print(df.shape[1])
+    print("Type of max_zero_days_per_future: ", type(max_zero_days_per_future))
+    print("Type of zero_days_per_future: ", type(zero_days_per_future))
+    print("Comparison result: ", (zero_days_per_future < max_zero_days_per_future).value_counts())
+    df_filtered = df.loc[:, zero_days_per_future < max_zero_days_per_future]
+    print(df_filtered.shape[1])
+   
+
+    
+    # df_filtered = df.loc[:, zero_days_per_future < max_zero_days_per_future]
     df_filtered = df_filtered.loc[zero_futures_per_day_ratio < max_zero_futures_per_day_ratio, :]
     return df_filtered
 
@@ -56,24 +73,24 @@ def fill_zeros(df):
 
 if __name__ == "__main__":
 
-    if conf['dataset_type'] == 'pinnacle':        
-        #  Downloading {#64c,3}
+    if conf['dataset_type'] == 'pinnacle':
         prices = load_data(dataset_location = conf['pinnacle_location'], 
                            dataset_assets = conf['pinnacle_assets']   , 
                            dataset_extension = conf['pinnacle_extension'])
     else:
         print('Other data (US stocks) not prepared yet. Use pinnacle dataset')
     
-#  Downloading {#64c,1}
+
     prices = adjust_and_swap_index(prices)
-    #  Prepocessing {#16c,5}
+    
+
     prices = filter_zeros(df = prices, 
                           max_zero_days_per_future = conf['max_zero_days_per_future'], 
                           max_zero_futures_per_day_ratio = conf['max_zero_futures_per_day_ratio'])
                           
     prices = fill_zeros(prices)
 
-    print(prices.head())
+    print(prices)
     prices.to_pickle(f'cleaned/{conf["dataset_type"]}.pkl')
     print(f'\nfile saved: cleaned/{conf["dataset_type"]}.pkl\n')
 
