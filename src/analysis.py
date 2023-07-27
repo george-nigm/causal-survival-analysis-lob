@@ -50,11 +50,11 @@ def get_portfolio_weights(returns, index_, full_conf):
             port_cov[f'{Y.index[0].date()}-{Y.index[-1].date()}'] = port_cov_window
         
         if full_conf['portfolio_method_config']['method'] == 'grangers_causation_matrix':            
-            w, port_cov_window = grangers_causation_matrix_portfolio(Y, full_conf['grangers_causation_matrix_config'])
+            w, port_cov_window = grangers_causation_matrix_portfolio(Y, full_conf['mv_config'], full_conf['grangers_causation_matrix_config'])
             port_cov[f'{Y.index[0].date()}-{Y.index[-1].date()}'] = port_cov_window
 
         if full_conf['portfolio_method_config']['method'] == 'PCMCI_wrapped':            
-            w, port_cov_window = PCMCI_wrapped(Y, full_conf['PCMCI_wrapped_causation_matrix_config'])
+            w, port_cov_window = PCMCI_wrapped(Y, full_conf['mv_config'], full_conf['PCMCI_wrapped_causation_matrix_config'])
             port_cov[f'{Y.index[0].date()}-{Y.index[-1].date()}'] = port_cov_window
             
         if w is None:

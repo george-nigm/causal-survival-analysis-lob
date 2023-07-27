@@ -8,7 +8,6 @@ from tigramite.pcmci import PCMCI
 from tigramite.independence_tests.parcorr import ParCorr
 
 
-
 def make_positive_definite(cov_matrix, epsilon=1e-2):
     eigvals, eigvecs = np.linalg.eigh(cov_matrix)
 
@@ -58,7 +57,7 @@ def mv_portfolio(returns, mv_conf, constraints = [None, None]):
     # -------------------------------------------------------------- #
         
     # port.solvers = ['MOSEK']
-    # port.alpha = mv_conf['alpha']
+    port.alpha = mv_conf['alpha']
     model= mv_conf['model'] # Could be Classic (historical), BL (Black Litterman) or FM (Factor Model)
     rm = mv_conf['rm'] # Risk measure used, this time will be variance
     obj = mv_conf['obj'] # Objective function, could be MinRisk, MaxRet, Utility or Sharpe
@@ -90,21 +89,19 @@ def grangers_causation_matrix(data, variables, maxlag, test='ssr_chi2test', verb
     df.index = [var + '_y' for var in variables]
     return df
 
-def grangers_causation_matrix_portfolio(returns, grangers_causation_matrix_config, constraints = [None, None]):
+def grangers_causation_matrix_portfolio(returns, mv_config, grangers_causation_matrix_config, constraints = [None, None]):
 
     port = rp.Portfolio(returns=returns)
-
     print(f'\n{returns.index[0].date()}')
     print(f'{returns.index[-1].date()}')
-                
+
     # # Add portfolio constraints
     # port.ainequality = constraints[0] # A
     # port.binequality = constraints[1] # B
 
-    method_mu = grangers_causation_matrix_config['method_mu']
-    method_cov = grangers_causation_matrix_config['method_cov']
-
-    port.assets_stats(method_mu=method_mu, method_cov=method_cov, d=grangers_causation_matrix_config['d_lib_const'])
+    method_mu = mv_config['method_mu']
+    method_cov = mv_config['method_cov']
+    port.assets_stats(method_mu=method_mu, method_cov=method_cov, d=mv_config['d_lib_const'])
 
     # -------------------------------------------------------------- #
     # DPhil
@@ -113,13 +110,13 @@ def grangers_causation_matrix_portfolio(returns, grangers_causation_matrix_confi
     # -------------------------------------------------------------- #
         
     # port.solvers = ['MOSEK']
-    # port.alpha = grangers_causation_matrix_config['alpha']
-    model= grangers_causation_matrix_config['model'] # Could be Classic (historical), BL (Black Litterman) or FM (Factor Model)
-    rm = grangers_causation_matrix_config['rm'] # Risk measure used, this time will be variance
-    obj = grangers_causation_matrix_config['obj'] # Objective function, could be MinRisk, MaxRet, Utility or Sharpe
-    hist = grangers_causation_matrix_config['hist'] # Use historical scenarios for risk measures that depend on scenarios
-    rf = grangers_causation_matrix_config['rf'] # Risk free rate
-    l = grangers_causation_matrix_config['l'] # Risk aversion factor, only useful when obj is 'Utility'
+    port.alpha = mv_config['alpha']
+    model= mv_config['model'] # Could be Classic (historical), BL (Black Litterman) or FM (Factor Model)
+    rm = mv_config['rm'] # Risk measure used, this time will be variance
+    obj = mv_config['obj'] # Objective function, could be MinRisk, MaxRet, Utility or Sharpe
+    hist = mv_config['hist'] # Use historical scenarios for risk measures that depend on scenarios
+    rf = mv_config['rf'] # Risk free rate
+    l = mv_config['l'] # Risk aversion factor, only useful when obj is 'Utility'
     try:
         w = port.optimization(model=model, rm=rm, obj=obj, rf=rf, l=l, hist=hist)
         print(f'\nweights successfully calculated')
@@ -129,21 +126,19 @@ def grangers_causation_matrix_portfolio(returns, grangers_causation_matrix_confi
     return w, port.cov
 
 
-def PCMCI_wrapped(returns, PCMCI_wrapped_matrix_config, constraints = [None, None]):
+def PCMCI_wrapped(returns, mv_config, PCMCI_wrapped_causation_matrix_config, constraints = [None, None]):
 
     port = rp.Portfolio(returns=returns)
-
     print(f'\n{returns.index[0].date()}')
     print(f'{returns.index[-1].date()}')
-                
+
     # # Add portfolio constraints
     # port.ainequality = constraints[0] # A
     # port.binequality = constraints[1] # B
 
-    method_mu = PCMCI_wrapped_matrix_config['method_mu']
-    method_cov = PCMCI_wrapped_matrix_config['method_cov']
-
-    port.assets_stats(method_mu=method_mu, method_cov=method_cov, d=PCMCI_wrapped_matrix_config['d_lib_const'])
+    method_mu = mv_config['method_mu']
+    method_cov = mv_config['method_cov']
+    port.assets_stats(method_mu=method_mu, method_cov=method_cov, d=mv_config['d_lib_const'])
 
     # -------------------------------------------------------------- #
     # DPhil
@@ -152,36 +147,31 @@ def PCMCI_wrapped(returns, PCMCI_wrapped_matrix_config, constraints = [None, Non
 
     var_names = list(returns.columns)
     dataframe = pp.DataFrame(returns.values, var_names=var_names)
-    # alpha = 0.05 
-    # tau_max = 4
-    alpha = PCMCI_wrapped_matrix_config['pcmci_alpha']
-    tau_max = PCMCI_wrapped_matrix_config['pcmci_tau_max']
+    alpha = PCMCI_wrapped_causation_matrix_config['pcmci_alpha']
+    tau_max = PCMCI_wrapped_causation_matrix_config['pcmci_tau_max']
 
-    # PCMCI
-    if PCMCI_wrapped_matrix_config['pcmci_cond_ind_test'] == 'ParCorr':
+    if PCMCI_wrapped_causation_matrix_config['pcmci_cond_ind_test'] == 'ParCorr':
         pcmci_object = PCMCI(dataframe=dataframe, cond_ind_test=ParCorr())
     
     results = pcmci_object.run_pcmci(tau_max=tau_max, pc_alpha=alpha)
     
-
     pcmci_object.print_significant_links(p_matrix=results['p_matrix'], 
-                                val_matrix=results['val_matrix'],
-                                alpha_level=alpha)
+                                         val_matrix=results['val_matrix'],
+                                         alpha_level=alpha)
     
     # p-value omitting
     p_matrix = results['p_matrix']
     val_matrix = results['val_matrix']
-
-    if PCMCI_wrapped_matrix_config['pcmci_drop_val_below_alpha'] == True:
+    if PCMCI_wrapped_causation_matrix_config['pcmci_drop_val_below_alpha'] == True:
         val_matrix[p_matrix > alpha] = 0
 
     # simultanious slice: only current relationships ('0') - no lags
-    PCMCI_matrix = pd.DataFrame(val_matrix[:,:,PCMCI_wrapped_matrix_config['pcmci_relationships_slice']])
+    PCMCI_matrix = pd.DataFrame(val_matrix[:,:,PCMCI_wrapped_causation_matrix_config['pcmci_relationships_slice']])
     
     PCMCI_matrix.columns = returns.columns
     PCMCI_matrix.index = returns.columns
 
-    if PCMCI_wrapped_matrix_config['pcmci_plus_diag_cov'] == True:
+    if PCMCI_wrapped_causation_matrix_config['pcmci_plus_diag_cov'] == True:
         df2_diag = np.diag(port.cov)    
         for i in range(len(PCMCI_matrix)):
             PCMCI_matrix.iat[i, i] += df2_diag[i]
@@ -194,13 +184,13 @@ def PCMCI_wrapped(returns, PCMCI_wrapped_matrix_config, constraints = [None, Non
     # -------------------------------------------------------------- #
         
     # port.solvers = ['MOSEK']
-    # port.alpha = PCMCI_wrapped_matrix_config['alpha']
-    model= PCMCI_wrapped_matrix_config['model'] # Could be Classic (historical), BL (Black Litterman) or FM (Factor Model)
-    rm = PCMCI_wrapped_matrix_config['rm'] # Risk measure used, this time will be variance
-    obj = PCMCI_wrapped_matrix_config['obj'] # Objective function, could be MinRisk, MaxRet, Utility or Sharpe
-    hist = PCMCI_wrapped_matrix_config['hist'] # Use historical scenarios for risk measures that depend on scenarios
-    rf = PCMCI_wrapped_matrix_config['rf'] # Risk free rate
-    l = PCMCI_wrapped_matrix_config['l'] # Risk aversion factor, only useful when obj is 'Utility'
+    port.alpha = mv_config['alpha']
+    model= mv_config['model'] # Could be Classic (historical), BL (Black Litterman) or FM (Factor Model)
+    rm = mv_config['rm'] # Risk measure used, this time will be variance
+    obj = mv_config['obj'] # Objective function, could be MinRisk, MaxRet, Utility or Sharpe
+    hist = mv_config['hist'] # Use historical scenarios for risk measures that depend on scenarios
+    rf = mv_config['rf'] # Risk free rate
+    l = mv_config['l'] # Risk aversion factor, only useful when obj is 'Utility'
     try:
         w = port.optimization(model=model, rm=rm, obj=obj, rf=rf, l=l, hist=hist)
         print(f'\nweights successfully calculated')
