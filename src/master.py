@@ -11,7 +11,7 @@ to replicate all of the python analysis
 """
 
 import src.download_raw_data as dl_raw
-import src.create_clean_data as cln_data
+import src.create_clean_data_pinnacle as cln_data
 # import src.analysis as analysis
 
 # dl_raw.download_raw_data()

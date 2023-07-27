@@ -5,12 +5,10 @@ import backtrader as bt
 import riskfolio as rp
 import quantstats
 import pickle 
-from portfolio_opt_methods import equal_weights, random_weights, mv_portfolio, grangers_causation_matrix_portfolio
+from portfolio_opt_methods import equal_weights, random_weights, mv_portfolio, grangers_causation_matrix_portfolio, PCMCI_wrapped
 import os
 import re
 import datetime
-import logging
-from create_clean_data import filter_zeros, fill_zeros
 
 with open('conf/analysis.yaml', 'r') as file:
     conf = yaml.safe_load(file)
@@ -54,6 +52,10 @@ def get_portfolio_weights(returns, index_, full_conf):
         if full_conf['portfolio_method_config']['method'] == 'grangers_causation_matrix':            
             w, port_cov_window = grangers_causation_matrix_portfolio(Y, full_conf['grangers_causation_matrix_config'])
             port_cov[f'{Y.index[0].date()}-{Y.index[-1].date()}'] = port_cov_window
+
+        if full_conf['portfolio_method_config']['method'] == 'PCMCI_wrapped':            
+            w, port_cov_window = PCMCI_wrapped(Y, full_conf['PCMCI_wrapped_causation_matrix_config'])
+            port_cov[f'{Y.index[0].date()}-{Y.index[-1].date()}'] = port_cov_window
             
         if w is None:
             w = weights.tail(1).T
@@ -92,8 +94,57 @@ class AssetAllocation(bt.Strategy):
                 reb_weights.append(round(w,3))
                 self.order_target_percent(getattr(self, i), target=w)
             print('\n',len(reb_weights), reb_weights)
+            
+            cash = self.broker.getcash()
+            value = self.broker.getvalue()
+            invested = value - cash
+
+            print(f'{self.counter} day.\nPortfolio Value: %.2f' % value)
+            print('Invested: %.2f' % invested)
+            print('Cash: %.2f' % cash)
+
+
 
         self.counter += 1
+    
+    def notify_order(self, order):
+        if order.status in [order.Submitted, order.Accepted]:
+            # Order has been submitted/accepted - no action required
+            return
+
+        # Check if an order has been completed
+        if order.status in [order.Completed]:
+            if order.isbuy():
+                self.log('BUY EXECUTED, Price: %.2f, Cost: %.2f, Comm %.2f, Stock: %s' %
+                        (order.executed.price,
+                        order.executed.value,
+                        order.executed.comm,
+                        order.data._name))
+
+            else:  # Sell
+                self.log('SELL EXECUTED, Price: %.2f, Cost: %.2f, Comm %.2f, Stock: %s' %
+                        (order.executed.price,
+                        order.executed.value,
+                        order.executed.comm,
+                        order.data._name))
+
+        elif order.status in [order.Canceled, order.Margin, order.Rejected]:
+            self.log('Order Canceled/Margin/Rejected for Stock: %s' % order.data._name)
+
+    def log(self, txt, dt=None):
+        dt = dt or self.datas[0].datetime.date(0)
+        print('%s, %s' % (dt.isoformat(), txt))
+
+
+class CloseOnly(bt.feeds.PandasData):
+    lines = ('close',)
+    params = (
+        ('open', 'close'),
+        ('high', 'close'),
+        ('low', 'close'),
+        ('volume', -1),
+        ('openinterest', -1),
+    )
 
 
 def backtest(datas, strategy, assets, weights, start, end, backtrader_config, plot=False, **kwargs):
@@ -146,35 +197,59 @@ if __name__ == "__main__":
         prices = pd.read_pickle(dataset_config['location'])
         assets = dataset_config['assets']
 
+    if conf['dataset_type'] == 'CPT':
+        dataset_config = conf['CPT_config']
+        prices = pd.read_pickle(dataset_config['location'])
+        assets = dataset_config['assets']
+
     prices = prices[prices.index >= conf['start_data']]
     prices = prices[prices.index <= conf['end_data']]
 
+    print(prices.shape)
 
 
     assets_prices = []
     excluded_tickers = []
 
-    for i in assets:
-        prices_ = prices.drop(columns='Open Interest').loc[:, (slice(None), i)].dropna()
-        prices_.columns = prices_.columns.droplevel(1)     
+    if conf['dataset_type'] == 'pinnacle':
+        for i in assets:
+            prices_ = prices.drop(columns='Open Interest').loc[:, (slice(None), i)].dropna()
+            prices_.columns = prices_.columns.droplevel(1)     
 
-        if len(prices_.columns) == 5: # check fullfilness for backtesting
-            prices_.columns = ['Open', 'High', 'Low', 'Close', 'Volume']        
-            assets_prices.append(bt.feeds.PandasData(dataname=prices_.iloc[method_config['window_size']:], plot=False))
-            # print('prices_.index[0]: ', prices_.index[0])
-            # print('prices_.iloc[method_config["window_size:"]:].index[0]: ', prices_.iloc[method_config['window_size']:].index[0])
-            # break
-        else:
-            excluded_tickers.append(i)
+            if len(prices_.columns) == 5: # check fullfilness for backtesting
+                prices_.columns = ['Open', 'High', 'Low', 'Close', 'Volume']      
+                print('\nprices_ after: \n\n', prices_.iloc[method_config['window_size']:])  
+                assets_prices.append(bt.feeds.PandasData(dataname=prices_.iloc[method_config['window_size']:], name=i, plot=False))
+                
+            else:
+                excluded_tickers.append(i)
 
+    if conf['dataset_type'] == 'CPT':
+        for i in assets:
+            prices_ = prices.loc[:, i].dropna()
+            intermediate = prices_.iloc[method_config['window_size']:]
+            prices_ = pd.DataFrame(intermediate.values, columns=['Close'])
+            prices_.index = intermediate.index
+
+            print('\nprices_ after: \n\n', prices_)
+            assets_prices.append(CloseOnly(dataname=prices_,  name=i))
+            
+
+    
     assets = [x for x in assets if x not in excluded_tickers]
-    prices = prices[[col for col in prices.columns if col[1] in assets]]
+    if conf['dataset_type'] == 'pinnacle':
+        prices = prices[[col for col in prices.columns if col[1] in assets]]
+        data = prices.loc[:, ('Close', slice(None))]
+        data.columns = data.columns.droplevel(0)
+        data.columns = assets
+    
+    if conf['dataset_type'] == 'CPT':
+        prices = prices[[col for col in prices.columns if col in assets]]
+        data = prices
+
     print('\n', prices)
         
-    
-    data = prices.loc[:, ('Close', slice(None))]
-    data.columns = data.columns.droplevel(0)
-    data.columns = assets
+   
     returns = data.pct_change().dropna()
     print('\n', returns) 
     
