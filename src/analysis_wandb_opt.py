@@ -9,10 +9,13 @@ from portfolio_opt_methods import equal_weights, random_weights, mv_portfolio, g
 import os
 import re
 import datetime
-import matplotlib.pyplot as plt
+import wandb
 
 with open('conf/analysis.yaml', 'r') as file:
     conf = yaml.safe_load(file)
+
+with open('conf/analysis_wandb_opt.yaml', 'r') as file:
+    conf_wandb = yaml.safe_load(file)
 
 def create_exp_folder(output_folder, special_label=''):
     os.makedirs(output_folder, exist_ok=True)
@@ -83,58 +86,47 @@ class AssetAllocation(bt.Strategy):
     def next(self):
         if self.counter in self.params.weights.index.tolist():
             
-            # print("Before rebalancing positions:")
-            # for i, d in enumerate(self.datas):
-            #     pos = self.getposition(d).size
-            #     if pos != 0:
-            #         print(f'{self.params.weights.columns[i]}: Position size: {pos}')
-
             reb_weights = []
             for i in self.params.assets:
                 w = self.params.weights.loc[self.counter, i]
                 reb_weights.append(round(w,3))
                 self.order_target_percent(getattr(self, i), target=w)
-            print('\n',len(reb_weights), reb_weights)
             
             cash = self.broker.getcash()
             value = self.broker.getvalue()
             invested = value - cash
 
             print(f'{self.counter} day.\nPortfolio Value: %.2f' % value)
-            print('Invested: %.2f' % invested)
-            print('Cash: %.2f' % cash)
-
-
 
         self.counter += 1
     
-    def notify_order(self, order):
-        if order.status in [order.Submitted, order.Accepted]:
-            # Order has been submitted/accepted - no action required
-            return
+    # def notify_order(self, order):
+    #     if order.status in [order.Submitted, order.Accepted]:
+    #         # Order has been submitted/accepted - no action required
+    #         return
 
-        # Check if an order has been completed
-        if order.status in [order.Completed]:
-            if order.isbuy():
-                self.log('BUY EXECUTED, Price: %.2f, Cost: %.2f, Comm %.2f, Stock: %s' %
-                        (order.executed.price,
-                        order.executed.value,
-                        order.executed.comm,
-                        order.data._name))
+    #     # Check if an order has been completed
+    #     if order.status in [order.Completed]:
+    #         if order.isbuy():
+    #             self.log('BUY EXECUTED, Price: %.2f, Cost: %.2f, Comm %.2f, Stock: %s' %
+    #                     (order.executed.price,
+    #                     order.executed.value,
+    #                     order.executed.comm,
+    #                     order.data._name))
 
-            else:  # Sell
-                self.log('SELL EXECUTED, Price: %.2f, Cost: %.2f, Comm %.2f, Stock: %s' %
-                        (order.executed.price,
-                        order.executed.value,
-                        order.executed.comm,
-                        order.data._name))
+    #         else:  # Sell
+    #             self.log('SELL EXECUTED, Price: %.2f, Cost: %.2f, Comm %.2f, Stock: %s' %
+    #                     (order.executed.price,
+    #                     order.executed.value,
+    #                     order.executed.comm,
+    #                     order.data._name))
 
-        elif order.status in [order.Canceled, order.Margin, order.Rejected]:
-            self.log('Order Canceled/Margin/Rejected for Stock: %s' % order.data._name)
+    #     elif order.status in [order.Canceled, order.Margin, order.Rejected]:
+    #         self.log('Order Canceled/Margin/Rejected for Stock: %s' % order.data._name)
 
-    def log(self, txt, dt=None):
-        dt = dt or self.datas[0].datetime.date(0)
-        print('%s, %s' % (dt.isoformat(), txt))
+    # def log(self, txt, dt=None):
+    #     dt = dt or self.datas[0].datetime.date(0)
+    #     print('%s, %s' % (dt.isoformat(), txt))
 
 
 class CloseOnly(bt.feeds.PandasData):
@@ -162,11 +154,10 @@ def backtest(datas, strategy, assets, weights, start, end, backtrader_config, pl
                                      slip_out=False)
 
     # Here we add the indicators that we are going to store
-    cerebro.addanalyzer(bt.analyzers.SharpeRatio, _name='mysharpe', timeframe=bt.TimeFrame.Days) #  riskfreerate=backtrader_config['riskfreerate']
+    cerebro.addanalyzer(bt.analyzers.SharpeRatio, riskfreerate=backtrader_config['riskfreerate'])
     cerebro.addanalyzer(bt.analyzers.Returns)
     cerebro.addanalyzer(bt.analyzers.DrawDown)
     cerebro.addanalyzer(bt.analyzers.PyFolio, _name='PyFolio')
-    print(weights)
     cerebro.addstrategy(strategy, assets=assets, weights=weights, **kwargs)
     cerebro.addobserver(bt.observers.Value)
     cerebro.addobserver(bt.observers.DrawDown)
@@ -185,10 +176,22 @@ def backtest(datas, strategy, assets, weights, start, end, backtrader_config, pl
     return (results,
             results[0].analyzers.drawdown.get_analysis()['max']['drawdown'],
             results[0].analyzers.returns.get_analysis()['rnorm100'],
-            np.sqrt(252)*results[0].analyzers.mysharpe.get_analysis()['sharperatio'])
+            results[0].analyzers.sharperatio.get_analysis()['sharperatio'])
 
-if __name__ == "__main__":
+def wandb_train():    
     print() 
+
+    # Specify the hyperparameter to be tuned along with an initial value
+    configs = {'rebalancing': 22,
+               'window_size': 252}
+
+    run = wandb.init(project="geo-george-hyperparameter-sweeps-partI", config=configs)
+    config = run.config
+    
+    conf['portfolio_method_config']['rebalancing'] = config.rebalancing
+    conf['portfolio_method_config']['window_size'] = config.window_size
+
+    
 
     method_config = conf['portfolio_method_config']
     backtrader_config = conf['backtrader_config'] 
@@ -206,22 +209,17 @@ if __name__ == "__main__":
     prices = prices[prices.index >= conf['start_data']]
     prices = prices[prices.index <= conf['end_data']]
 
-    print(prices.shape)
-
-
     assets_prices = []
     excluded_tickers = []
+
 
     if conf['dataset_type'] == 'pinnacle':
         for i in assets:
             prices_ = prices.drop(columns='Open Interest').loc[:, (slice(None), i)].dropna()
             prices_.columns = prices_.columns.droplevel(1)     
-
             if len(prices_.columns) == 5: # check fullfilness for backtesting
                 prices_.columns = ['Open', 'High', 'Low', 'Close', 'Volume']      
-                print('\nprices_ after: \n\n', prices_.iloc[method_config['window_size']:])  
                 assets_prices.append(bt.feeds.PandasData(dataname=prices_.iloc[method_config['window_size']:], name=i, plot=False))
-                
             else:
                 excluded_tickers.append(i)
 
@@ -231,12 +229,9 @@ if __name__ == "__main__":
             intermediate = prices_.iloc[method_config['window_size']:]
             prices_ = pd.DataFrame(intermediate.values, columns=['Close'])
             prices_.index = intermediate.index
-
-            print('\nprices_ after: \n\n', prices_)
             assets_prices.append(CloseOnly(dataname=prices_,  name=i))
             
 
-    
     assets = [x for x in assets if x not in excluded_tickers]
     if conf['dataset_type'] == 'pinnacle':
         prices = prices[[col for col in prices.columns if col[1] in assets]]
@@ -248,13 +243,8 @@ if __name__ == "__main__":
         prices = prices[[col for col in prices.columns if col in assets]]
         data = prices
 
-    print('\n', prices)
-        
-   
     returns = data.pct_change().dropna()
-    print('\n', returns) 
     
-
     if isinstance(method_config['rebalancing'], int):
         rebalance_days = returns.iloc[method_config['window_size']::method_config['rebalancing']].index
 
@@ -266,11 +256,9 @@ if __name__ == "__main__":
     #     rebalance_days = [x for x in rebalance_days if float(x.month) % 3.0 == 0 ] 
 
     returns_dates = returns.index
-    print('\n', returns_dates)
     rebalance_rows = [returns_dates.get_loc(x) for x in rebalance_days]
     # rebalance_rows = [returns_dates.get_loc(x) for x in rebalance_days if returns_dates.get_loc(x) > method_config['window_size']]
     print('\n', len(rebalance_rows), rebalance_rows)
-    print('\n', rebalance_days)
 
     # Weights calculation {#25f,4}
     weights, port_cov = get_portfolio_weights(returns = returns, 
@@ -279,12 +267,7 @@ if __name__ == "__main__":
                                     )
 
     rebalance_rows = [x - method_config['window_size'] for x in rebalance_rows]
-
-    
     weights.index = rebalance_rows
-    print('\n', weights)
-
-
 
     #  Backtrader run{#05a,10}
     results, dd, cagr, sharpe = backtest(assets_prices,
@@ -294,7 +277,7 @@ if __name__ == "__main__":
                                 start=conf['start_data'],
                                 end=conf['end_data'],
                                 backtrader_config = backtrader_config)
-
+    
     # fixing sharp
     strat = results[0]
     portfolio_stats = strat.analyzers.getbyname('PyFolio')
@@ -306,23 +289,61 @@ if __name__ == "__main__":
     sharpe = sharpe_ratio
 
     print(f'\ndd: {dd}, cagr: {cagr}, sharpe: {sharpe}')
-     
 
-    if conf['save_report'] == True:
+    strat = results[0]
+    portfolio_stats = strat.analyzers.getbyname('PyFolio')
+    returns_bt, positions, transactions, gross_lev = portfolio_stats.get_pf_items()
+    returns_bt.index = returns_bt.index.tz_convert(None)
 
-        formatted_string = "{}-{}-{}-{}".format(conf["dataset_type"], conf["start_data"][:4], conf["end_data"][:4], method_config["method"])
-        exp_folder = create_exp_folder(output_folder = "output-scratch", special_label=formatted_string)
+
+    # log metrics to wandb
+    wandb.log({"rebalancing": config.rebalancing,
+               "window_size": config.window_size,
+               "dd": dd, "cagr": cagr, "sharpe": sharpe,
+               "returns_portfolio": returns_bt.values
+               })
+
+    # if conf['save_report'] == True:
+
+    #     formatted_string = "{}-{}-{}-{}".format(conf["dataset_type"], conf["start_data"][:4], conf["end_data"][:4], method_config["method"])
+    #     exp_folder = create_exp_folder(output_folder = "output-scratch", special_label=formatted_string)
         
-        quantstats.reports.html(returns_bt, output=f'{exp_folder}/report.html', title=f'{formatted_string}')        
+    #     quantstats.reports.html(returns_bt, output=f'{exp_folder}/report.html', title=f'{formatted_string}')        
 
-        returns.to_csv(f'{exp_folder}/returns.csv')
+    #     returns.to_csv(f'{exp_folder}/returns.csv')
 
-        with open(f'{exp_folder}/port_cov.pkl', 'wb') as f:
-            pickle.dump(port_cov, f)
+    #     with open(f'{exp_folder}/port_cov.pkl', 'wb') as f:
+    #         pickle.dump(port_cov, f)
+
+    #     print(f'files saved: {exp_folder}/report.html')
 
 
-        returns.to_csv(f'{exp_folder}/returns_bt.csv')
-        returns.plot()
-        plt.savefig(f'{exp_folder}/returns_plot.png')
+if __name__ == "__main__":
+    import wandb
+    import random
+    # wandb.login()
 
-        print(f'files saved: {exp_folder}/report.html')
+    sweep_id = wandb.sweep(conf_wandb) 
+    wandb.agent(sweep_id, function=wandb_train)
+
+    
+    # wandb.init(project="my-awesome-project",
+    #            config={
+    #            "learning_rate": 0.02,
+    #            "architecture": "CNN",
+    #            "dataset": "CIFAR-100",
+    #            "epochs": 10})
+
+    # # simulate training
+    # epochs = 10
+    # offset = random.random() / 5
+    # for epoch in range(2, epochs):
+    #     acc = 1 - 2 ** -epoch - random.random() / epoch - offset
+    #     loss = 2 ** -epoch + random.random() / epoch + offset
+        
+    #     # log metrics to wandb
+    #     wandb.log({"acc": acc, "loss": loss})
+        
+    # # [optional] finish the wandb run, necessary in notebooks
+    # wandb.finish()
+

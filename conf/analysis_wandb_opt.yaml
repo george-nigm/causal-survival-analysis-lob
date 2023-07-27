@@ -1,0 +1,11 @@
+method: 'grid'
+
+metric:
+  name: 'sharpe'
+  goal: 'maximize'  
+
+parameters:
+  rebalancing:
+    values: [22, 44, 66, 88, 110]
+  window_size:
+    values: [110, 330, 550]  # add your desired window sizes here

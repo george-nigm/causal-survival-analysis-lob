@@ -1,6 +1,7 @@
 # Exclude everything in these directories
 raw/*
 output-scratch/*
+wandb/
 # except keep the folders
 !raw/.gitkeep
 !output-scratch/.gitkeep
