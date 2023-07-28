@@ -6,6 +6,8 @@ metric:
 
 parameters:
   rebalancing:
-    values: [22, 44, 66, 88, 110]
+    values: [11, 22, 33, 44, 55, 66, 77, 88, 99, 110, 121, 182, 252, 756, 1008]
+
   window_size:
-    values: [110, 330, 550]  # add your desired window sizes here
+    values: [11, 22, 33, 44, 55, 66, 77, 88, 99, 110, 121, 182, 252, 286, 308, 330, 352, 374, 396, 418, 440, 504, 756, 1008]
+  # add your desired window sizes here

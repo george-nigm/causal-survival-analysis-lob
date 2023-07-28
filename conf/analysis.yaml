@@ -1,4 +1,4 @@
-dataset_type: 'CPT' # pinnacle, CPT
+dataset_type: 'pinnacle' # pinnacle, CPT
 
 # for pinnacle: 1970?? - 2021-12-31
 # for CPT (3k-7k): 2011-01-01 - 2021-12-13
@@ -10,9 +10,9 @@ max_zero_days_per_future: 160
 max_zero_futures_per_day_ratio: 0.10
 
 portfolio_method_config:
-  method: 'random_weights' # 'MV', 'equal_weights', 'random_weights', 'grangers_causation_matrix', 'PCMCI_wrapped', 'Causal_NG', MV', 'MAD', 'MSV', 'FLPM', 'SLPM', 'CVaR', 'WR', 'MDD', 'ADD', 'CDaR'
-  rebalancing: 22 # 'last_available_day_of_month', 'quarterly_last_available_day_of_month'
-  window_size: 252 # 252, 1260
+  method: 'PCMCI_wrapped' # 'MV', 'equal_weights', 'random_weights', 'grangers_causation_matrix', 'PCMCI_wrapped', 'Causal_NG', MV', 'MAD', 'MSV', 'FLPM', 'SLPM', 'CVaR', 'WR', 'MDD', 'ADD', 'CDaR'
+  rebalancing: 99 # 22 'last_available_day_of_month', 'quarterly_last_available_day_of_month'
+  window_size: 308 # 252, 1260
   
 
 mv_config:
@@ -35,11 +35,11 @@ grangers_causation_matrix_config:
 
 PCMCI_wrapped_causation_matrix_config:
   pcmci_alpha: 0.05
-  pcmci_tau_max: 4
+  pcmci_tau_max: 7
   pcmci_cond_ind_test: ParCorr # ParCorr - linear test
-  pcmci_drop_val_below_alpha: True
-  pcmci_relationships_slice: 0
-  pcmci_plus_diag_cov: True
+  pcmci_drop_val_below_alpha: False # True
+  pcmci_relationships_slice: 1
+  pcmci_plus_diag_cov: True # True , False - no sense! 
 
 
 

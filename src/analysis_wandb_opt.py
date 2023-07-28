@@ -10,6 +10,7 @@ import os
 import re
 import datetime
 import wandb
+from matplotlib import pyplot as plt
 
 with open('conf/analysis.yaml', 'r') as file:
     conf = yaml.safe_load(file)
@@ -299,9 +300,15 @@ def wandb_train():
     # log metrics to wandb
     wandb.log({"rebalancing": config.rebalancing,
                "window_size": config.window_size,
-               "dd": dd, "cagr": cagr, "sharpe": sharpe,
-               "returns_portfolio": returns_bt.values
+               "dd": dd, "cagr": cagr, "sharpe": sharpe
                })
+    arr = [i for i in range(config.window_size, len(returns_bt.values)+config.window_size)]
+    # print(arr)
+    data = [[x, y] for (x, y) in zip(arr, returns_bt.values)]
+    table = wandb.Table(data=data, columns = ["returns_bt_index", "returns_bt_values"])
+    wandb.log({"my_lineplot_id" : wandb.plot.line(table, "returns_bt_index", 
+            "returns_bt_values", stroke=None, title="Average Precision")})
+
 
     # if conf['save_report'] == True:
 
