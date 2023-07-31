@@ -153,11 +153,8 @@ def PCMCI_wrapped(returns, mv_config, PCMCI_wrapped_causation_matrix_config, con
     if PCMCI_wrapped_causation_matrix_config['pcmci_cond_ind_test'] == 'ParCorr':
         pcmci_object = PCMCI(dataframe=dataframe, cond_ind_test=ParCorr())
     
-    results = pcmci_object.run_pcmci(tau_max=tau_max, pc_alpha=alpha)
-    
-    pcmci_object.print_significant_links(p_matrix=results['p_matrix'], 
-                                         val_matrix=results['val_matrix'],
-                                         alpha_level=alpha)
+    # results = pcmci_object.run_pcmci(tau_max=tau_max, pc_alpha=alpha)
+    results = pcmci_object.run_pcmci(tau_max=tau_max, pc_alpha=None)
     
     # p-value omitting
     p_matrix = results['p_matrix']

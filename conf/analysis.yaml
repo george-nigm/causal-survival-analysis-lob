@@ -1,9 +1,9 @@
-dataset_type: 'pinnacle' # pinnacle, CPT
+dataset_type: 'CPT' # pinnacle, CPT
 
 # for pinnacle: 1970?? - 2021-12-31
 # for CPT (3k-7k): 2011-01-01 - 2021-12-13
 
-start_data: '2019-01-01'
+start_data: '2017-01-01'
 end_data: '2021-12-13'
 
 max_zero_days_per_future: 160
@@ -35,10 +35,10 @@ grangers_causation_matrix_config:
 
 PCMCI_wrapped_causation_matrix_config:
   pcmci_alpha: 0.05
-  pcmci_tau_max: 7
+  pcmci_tau_max: 9
   pcmci_cond_ind_test: ParCorr # ParCorr - linear test
-  pcmci_drop_val_below_alpha: False # True
   pcmci_relationships_slice: 1
+  pcmci_drop_val_below_alpha: False # True
   pcmci_plus_diag_cov: True # True , False - no sense! 
 
 

@@ -184,13 +184,16 @@ def wandb_train():
 
     # Specify the hyperparameter to be tuned along with an initial value
     configs = {'rebalancing': 22,
-               'window_size': 252}
+               'window_size': 252,
+               'causality_tau_max':1,
+               }
 
     run = wandb.init(project="geo-george-hyperparameter-sweeps-partI", config=configs)
     config = run.config
     
     conf['portfolio_method_config']['rebalancing'] = config.rebalancing
     conf['portfolio_method_config']['window_size'] = config.window_size
+    conf['PCMCI_wrapped_causation_matrix_config']['pcmci_tau_max'] = config.causality_tau_max
 
     
 
@@ -304,6 +307,7 @@ def wandb_train():
                })
     arr = [i for i in range(config.window_size, len(returns_bt.values)+config.window_size)]
     # print(arr)
+    returns_bt = np.cumsum(returns_bt)
     data = [[x, y] for (x, y) in zip(arr, returns_bt.values)]
     table = wandb.Table(data=data, columns = ["returns_bt_index", "returns_bt_values"])
     wandb.log({"my_lineplot_id" : wandb.plot.line(table, "returns_bt_index", 
