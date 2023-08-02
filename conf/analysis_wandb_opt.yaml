@@ -6,12 +6,13 @@ metric:
 
 parameters:
   rebalancing:
-    values: [11, 22, 33, 66, 99, 121, 182, 252]
+    values: [11, 22, 99, 252]
 
   window_size:
-    values: [11, 22, 33, 66, 99, 121, 182, 252, 308, 330, 352, 374, 396, 418, 440, 504, 756, 1008]
+    values: [11, 22, 99, 252, 504, 756, 1008]
 
   causality_tau_max:
-    values: [1,2,3,4,5,6,7,8,9,10]
+    values: [1,2,3]
 
   # add your desired window sizes here
+fix min sufficient regions for search. Use rebalancing  = 22 , window_size = 756
