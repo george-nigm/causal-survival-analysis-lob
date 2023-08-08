@@ -162,8 +162,19 @@ def PCMCI_wrapped(returns, mv_config, PCMCI_wrapped_causation_matrix_config, con
     if PCMCI_wrapped_causation_matrix_config['pcmci_drop_val_below_alpha'] == True:
         val_matrix[p_matrix > alpha] = 0
 
+
+    # --------- #
+    # slice research !!
+
+    # PCMCI_wrapped_causation_matrix_config['pcmci_relationships_slice']
     # simultanious slice: only current relationships ('0') - no lags
     PCMCI_matrix = pd.DataFrame(val_matrix[:,:,PCMCI_wrapped_causation_matrix_config['pcmci_relationships_slice']])
+
+    # Sum !
+    # sum_across_slices = val_matrix.sum(axis=2)
+    # PCMCI_matrix = pd.DataFrame(sum_across_slices)
+
+
     
     PCMCI_matrix.columns = returns.columns
     PCMCI_matrix.index = returns.columns

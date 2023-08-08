@@ -1,18 +1,18 @@
-dataset_type: 'CPT' # pinnacle, CPT
+dataset_type: 'pinnacle' # pinnacle, CPT
 
 # for pinnacle: 1970?? - 2021-12-31
 # for CPT (3k-7k): 2011-01-01 - 2021-12-13
 
-start_data: '2017-01-01'
+start_data: '2000-01-01'
 end_data: '2021-12-13'
 
 max_zero_days_per_future: 160
 max_zero_futures_per_day_ratio: 0.10
 
 portfolio_method_config:
-  method: 'PCMCI_wrapped' # 'MV', 'equal_weights', 'random_weights', 'grangers_causation_matrix', 'PCMCI_wrapped', 'Causal_NG', MV', 'MAD', 'MSV', 'FLPM', 'SLPM', 'CVaR', 'WR', 'MDD', 'ADD', 'CDaR'
-  rebalancing: 99 # 22 'last_available_day_of_month', 'quarterly_last_available_day_of_month'
-  window_size: 308 # 252, 1260
+  method: 'grangers_causation_matrix' # 'MV', 'equal_weights', 'random_weights', 'grangers_causation_matrix', 'PCMCI_wrapped', 'Causal_NG', MV', 'MAD', 'MSV', 'FLPM', 'SLPM', 'CVaR', 'WR', 'MDD', 'ADD', 'CDaR'
+  rebalancing: 22 # 22 'last_available_day_of_month', 'quarterly_last_available_day_of_month'
+  window_size: 756 # 252, 756 1260
   
 
 mv_config:
@@ -35,7 +35,7 @@ grangers_causation_matrix_config:
 
 PCMCI_wrapped_causation_matrix_config:
   pcmci_alpha: 0.05
-  pcmci_tau_max: 9
+  pcmci_tau_max: 3
   pcmci_cond_ind_test: ParCorr # ParCorr - linear test
   pcmci_relationships_slice: 1
   pcmci_drop_val_below_alpha: False # True
@@ -55,9 +55,10 @@ save_report: True
 
 pinnacle_config:
   location: 'cleaned/pinnacle.pkl' 
-  # 50 assets: ['KW', 'MW', 'NR', 'W_', 'ZC', 'ZL', 'ZM', 'ZO', 'ZR', 'ZS', 'ZW', 'DA', 'ZF', 'ZT', 'ZZ', 'LB', 'ZG', 'ZI', 'ZP', 'ZA', 'ZK', 'AX', 'CA', 'DX', 'EN', 'ES', 'GI', 'LX', 'MD', 'NK', 'SC', 'DT', 'FB', 'GS', 'SS', 'TY', 'TU', 'US', 'UB', 'UZ', 'AN', 'BN', 'CN', 'EC', 'FN', 'JN', 'MP', 'SN', 'ZB', 'ZH', 'ZN', 'ZU']
+  # 50 
+  assets: ['KW', 'MW', 'NR', 'W_', 'ZC', 'ZL', 'ZM', 'ZO', 'ZR', 'ZS', 'ZW', 'DA', 'ZF', 'ZT', 'ZZ', 'LB', 'ZG', 'ZI', 'ZP', 'ZA', 'ZK', 'AX', 'CA', 'DX', 'EN', 'ES', 'GI', 'LX', 'MD', 'NK', 'SC', 'DT', 'FB', 'GS', 'SS', 'TY', 'TU', 'US', 'UB', 'UZ', 'AN', 'BN', 'CN', 'EC', 'FN', 'JN', 'MP', 'SN', 'ZB', 'ZH', 'ZN', 'ZU']
   # 10
-  assets: ['KW', 'ZM', 'DA', 'ZG', 'AX', 'GI', 'DT', 'TU', 'BN', 'MP']
+  # assets: ['KW', 'ZM', 'DA', 'ZG', 'AX', 'GI', 'DT', 'TU', 'BN', 'MP']
   industries: ['Grains', 'Grains', 'Grains', 'Grains', 'Grains', 'Grains', 'Grains', 'Grains', 'Grains', 'Grains', 'Grains', 'Meats', 'Meats', 'Meats', 'Meats', 'Wood fibre', 'Metals', 'Metals', 'Metals', 'Metals', 'Metals', 'Indexes', 'Indexes', 'Indexes', 'Indexes', 'Indexes', 'Indexes', 'Indexes', 'Indexes', 'Indexes', 'Indexes', 'Bonds', 'Bonds', 'Bonds', 'Bonds', 'Bonds', 'Bonds', 'Bonds', 'Bonds', 'Bonds', 'Currency', 'Currency', 'Currency', 'Currency', 'Currency', 'Currency', 'Currency', 'Currency', 'Oils', 'Oils', 'Oils', 'Oils']
 
 
