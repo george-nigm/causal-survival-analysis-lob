@@ -79,15 +79,17 @@ class AssetAllocation(bt.Strategy):
             j += 1
         
         self.counter = 0
+        self.portfolio_value = []
         
     def next(self):
+
+        cash = self.broker.getcash()
+        value = self.broker.getvalue()
+        invested = value - cash
+
+
         if self.counter in self.params.weights.index.tolist():
             
-            # print("Before rebalancing positions:")
-            # for i, d in enumerate(self.datas):
-            #     pos = self.getposition(d).size
-            #     if pos != 0:
-            #         print(f'{self.params.weights.columns[i]}: Position size: {pos}')
 
             reb_weights = []
             for i in self.params.assets:
@@ -96,9 +98,6 @@ class AssetAllocation(bt.Strategy):
                 self.order_target_percent(getattr(self, i), target=w)
             print('\n',len(reb_weights), reb_weights)
             
-            cash = self.broker.getcash()
-            value = self.broker.getvalue()
-            invested = value - cash
 
             print(f'{self.counter} day.\nPortfolio Value: %.2f' % value)
             print('Invested: %.2f' % invested)
@@ -107,6 +106,7 @@ class AssetAllocation(bt.Strategy):
 
 
         self.counter += 1
+        self.portfolio_value.append(value)
     
     def notify_order(self, order):
         if order.status in [order.Submitted, order.Accepted]:
@@ -177,6 +177,10 @@ def backtest(datas, strategy, assets, weights, start, end, backtrader_config, pl
     print('Start Portfolio Value: %.2f' % cerebro.broker.getvalue())
     results = cerebro.run(stdstats=False)
     print('\nFinal Portfolio Value: %.2f' % cerebro.broker.getvalue())
+
+    # print(results[0].portfolio_value)
+
+    
 
 
     if plot:
@@ -315,7 +319,10 @@ if __name__ == "__main__":
         
         quantstats.reports.html(returns_bt, output=f'{exp_folder}/report.html', title=f'{formatted_string}')        
 
-        returns.to_csv(f'{exp_folder}/returns.csv')
+        pd.Series(strat.portfolio_value).to_csv(f'{exp_folder}/returns.csv')
+
+        weights.to_csv(f'{exp_folder}/weights.csv')
+        
 
         with open(f'{exp_folder}/port_cov.pkl', 'wb') as f:
             pickle.dump(port_cov, f)
