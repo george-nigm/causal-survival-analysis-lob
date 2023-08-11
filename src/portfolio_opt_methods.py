@@ -168,11 +168,11 @@ def PCMCI_wrapped(returns, mv_config, PCMCI_wrapped_causation_matrix_config, con
 
     # PCMCI_wrapped_causation_matrix_config['pcmci_relationships_slice']
     # simultanious slice: only current relationships ('0') - no lags
-    PCMCI_matrix = pd.DataFrame(val_matrix[:,:,PCMCI_wrapped_causation_matrix_config['pcmci_relationships_slice']])
+    # PCMCI_matrix = pd.DataFrame(val_matrix[:,:,PCMCI_wrapped_causation_matrix_config['pcmci_relationships_slice']])
 
     # Sum !
-    # sum_across_slices = val_matrix.sum(axis=2)
-    # PCMCI_matrix = pd.DataFrame(sum_across_slices)
+    sum_across_slices = val_matrix.sum(axis=2)
+    PCMCI_matrix = pd.DataFrame(sum_across_slices)
 
 
     
