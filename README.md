@@ -1,4 +1,4 @@
-# Cookiecutter research project
+# Causal Inference For Portfolio Optimization And Trading
 
 This is an example, or 'cookiecutter', repository for a research project. ```git clone``` the project and use it as a skeleton for your own research project. A full explanation may be found in [this accompanying blog post](http://aeturrell.com//2019/06/26/get-organised/). The idea is that this project structure should be as simple as possible, but no simpler.
 
