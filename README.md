@@ -6,7 +6,7 @@ In the fast-paced financial world, traditional tools, while useful for asset all
 
 Find full research proposal: causal-portfolio-and-trading.pdf
 
-### Feasability study
+### Feasability study / Current status
 
 Dataset: Pinnacle ('2000-01-01' - '2021-12-13');
 
