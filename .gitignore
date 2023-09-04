@@ -1,5 +1,6 @@
 # Exclude everything in these directories
 raw/*
+cleaned/*
 output-scratch/*
 wandb/
 notebooks/*
