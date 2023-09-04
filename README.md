@@ -10,17 +10,17 @@ Find full research proposal: causal-portfolio-and-trading.pdf
 
 Dataset: Pinnacle ('2000-01-01' - '2021-12-13');
 
-Causal discovery method: PCMCI (max time lag = 5);
-Causal matrix construction: Summation of all time lag slices;
+Causal discovery method: PCMCI (max time lag = 5);<br>
+Causal matrix construction: Summation of all time lag slices; <br>
 
-Portfolio optimization method: Mean Risk Portfolio Optimization (Maximizing Sharp ratio)
+Portfolio optimization method: Mean Risk Portfolio Optimization (Maximizing Sharp ratio);
 
-Expected returns (mu) & covariance matrix (cov) estimation: Historical.
-Portfolio rebalancing: 22 days
-Window size: 756 days
+Expected returns (mu) & covariance matrix (cov) estimation: Historical; <br>
+Portfolio rebalancing: 22 days; <br>
+Window size: 756 days; <br>
 
-Backtesting: Backtrader library
-cash: 100000
-commission: 0.005
-slippage_perc: 0.005
-riskfreerate: 0.0
+Backtesting: Backtrader library; <br>
+cash: 100000; <br>
+commission: 0.005; <br>
+slippage_perc: 0.005; <br>
+riskfreerate: 0.0;
