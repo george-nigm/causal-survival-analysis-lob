@@ -10,17 +10,20 @@ Find full research proposal: causal-portfolio-and-trading.pdf
 
 Dataset: Pinnacle ('2000-01-01' - '2021-12-13');
 
-Causal discovery method: PCMCI (max time lag = 5);<br>
+Method 1. Equally Weighted Portfolio;
+
+Method 2. Portfolio optimization method: Mean Risk Portfolio Optimization (Maximizing Sharp ratio);
+
+Method 3. Causal discovery method: Granger causality (max time lag = 5);<br>
 Causal matrix construction: Summation of all time lag slices; <br>
 
-Portfolio optimization method: Mean Risk Portfolio Optimization (Maximizing Sharp ratio);
-
-Expected returns (mu) & covariance matrix (cov) estimation: Historical; <br>
-Portfolio rebalancing: 22 days; <br>
-Window size: 756 days; <br>
+Method 4. Causal discovery method: PCMCI (max time lag = 5);<br>
+Causal matrix construction: Summation of all time lag slices; <br>
 
 Backtesting: Backtrader library; <br>
-cash: 100000; <br>
-commission: 0.005; <br>
-slippage_perc: 0.005; <br>
-riskfreerate: 0.0;
+Cash: 100000; <br>
+Commission: 0.005; <br>
+Riskfreerate: 0.0;
+Portfolio rebalancing: 22 days; <br>
+Window size: 756 days; <br>
+Expected returns (mu) & covariance matrix (cov) estimation: Historical; <br>
