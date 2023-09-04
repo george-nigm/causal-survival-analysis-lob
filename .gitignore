@@ -2,6 +2,7 @@
 raw/*
 output-scratch/*
 wandb/
+notebooks/*
 # except keep the folders
 !raw/.gitkeep
 !output-scratch/.gitkeep

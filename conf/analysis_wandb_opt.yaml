@@ -12,7 +12,7 @@ parameters:
     values: [11, 22, 99, 252, 504, 756, 1008]
 
   causality_tau_max:
-    values: [1,2,3]
+    values: [1,2,3,4]
 
   # add your desired window sizes here
-fix min sufficient regions for search. Use rebalancing  = 22 , window_size = 756
+# fix min sufficient regions for search. Use rebalancing  = 22 , window_size = 756
