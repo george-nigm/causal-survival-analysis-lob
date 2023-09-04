@@ -1,6 +1,6 @@
 # Exclude everything in these directories
 raw/*
-# cleaned/pinnacle.pkl
+cleaned/pinnacle.pkl
 output-scratch/*
 wandb/
 notebooks/*
