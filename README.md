@@ -7,3 +7,20 @@ In the fast-paced financial world, traditional tools, while useful for asset all
 Find full research proposal: causal-portfolio-and-trading.pdf
 
 ### Feasability study
+
+Dataset: Pinnacle ('2000-01-01' - '2021-12-13');
+
+Causal discovery method: PCMCI (max time lag = 5);
+Causal matrix construction: Summation of all time lag slices;
+
+Portfolio optimization method: Mean Risk Portfolio Optimization (Maximizing Sharp ratio)
+
+Expected returns (mu) & covariance matrix (cov) estimation: Historical.
+Portfolio rebalancing: 22 days
+Window size: 756 days
+
+Backtesting: Backtrader library
+cash: 100000
+commission: 0.005
+slippage_perc: 0.005
+riskfreerate: 0.0
