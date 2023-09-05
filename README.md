@@ -4,44 +4,13 @@ In the fast-paced financial world, traditional tools, while useful for asset all
 
 ![tg_image_1105072616](https://github.com/george-nigm/causal-portfolio-and-trading/assets/48650320/78a8408f-306d-49d3-bed2-6094a3b4ec23)
 
+The objective of this research proposal is to rigorously explore and apply causal inference techniques within the context of financial time-series data. Specifically, this research aims to:
+- Determine directional links between financial instruments and macro-economic indicators.
+- Enhance portfolio optimization by transitioning from traditional covariance matrices to causal matrices.
+- Identify and exploit lead-lag relationships among equities for advanced trading algorithms.
+- Model counterfactual responses of equities to economic shifts, like federal rate adjustments.
+- Strengthen portfolio optimization process in the face of economic shifts.
+- Merge the causal framework with cutting-edge machine learning, especially Causal Reinforcement Learning, expanding AI's role in financial analytics.
+
 Find full research proposal: causal-portfolio-and-trading.pdf
 
-### Feasability study / Current results
-
-Dataset: Pinnacle dataset ('2000-01-01' - '2021-12-13');
-
-Method 1. Equally Weighted Portfolio;
-
-Method 2. Portfolio optimization method: Mean Risk Portfolio Optimization (Maximizing Sharp ratio);
-
-Method 3. Causal discovery method: Granger causality (max time lag = 1);<br>
-Causal matrix construction: Summation of all time lag slices; <br>
-
-Method 4. Causal discovery method: PCMCI (max time lag = 5);<br>
-Causal matrix construction: Summation of all time lag slices; <br>
-
-Backtesting: Backtrader library; <br>
-- Cash: 100000; <br>
-- Commission: 0.005; <br>
-- Riskfreerate: 0.0;
-- Portfolio rebalancing: 22 days; <br>
-- Window size: 756 days; <br>
-- Expected returns (mu) & covariance matrix (cov) estimation: Historical; <br>
-
-
-|                                                   | Cummulative returns | CAGR % | Sharpe | Sortino | Max Drawdown | Volatility (ann.) | Kelly Criterion |
-|---------------------------------------------------|:-------------------:|:------:|:------:|---------|:------------:|:-----------------:|:---------------:|
-| Equally Weighted Portfolio                        |        93.2%        |  2.42% |   0.5  |   0.69  |    -30.64%   |       7.28%       |      4.43%      |
-| Mean Risk Portfolio Optimization                  |       114.31%       |  2.8%  |  0.37  |   0.52  |    -37.45%   |       12.74%      |      3.44%      |
-| Causal Portfolio Optimization (Granger causality) |        69.45%       |  1.93% |  0.41  |   0.56  |    -31.79%   |       7.29%       |      3.86%      |
-| Causal Portfolio Optimization (PCMCI)             |       110.65%       |  2.74% |  **0.52**  |   0.71  |    -33.81%   |       7.99%       |      4.81%      |
-
-Causal Portfolio Optimization (PCMCI) offers the most effective allocation strategy that demonstrates superiority both in absolute values of the sharpe metric, and relatively the most robust strategy that guarantees a positive change in capital under management in comparison with other portfolio optimization methods.
-
-#### Plans 
-- Adding other datasets like the Wharton Research Data Services (WRDS);
-- Introduction of macro-variables as confounders for excluding spurious relationships;
-- Increase max time lag (e.g. max time lag = 5);
-- Analysis with non-linear methods of causal discovery;
-- Counterfactual analysis of fed rate changes;
-- Research of lead-lag dependencies for pairs trading;
