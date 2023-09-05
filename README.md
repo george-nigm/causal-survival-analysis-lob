@@ -28,6 +28,7 @@ Backtesting: Backtrader library; <br>
 - Window size: 756 days; <br>
 - Expected returns (mu) & covariance matrix (cov) estimation: Historical; <br>
 
+
 |                                                   | E(R) | Std(R) | Sharpe | DD(R) | Sortino | MDD     |
 |---------------------------------------------------|------|--------|--------|-------|---------|---------|
 | Equally Weighted Portfolio                        |      |        |        |       |         |         |
@@ -38,9 +39,9 @@ Backtesting: Backtrader library; <br>
 Causal Portfolio Optimization (PCMCI) offers the most effective allocation strategy that demonstrates superiority both in absolute values of the sharpe metric, and relatively the most robust strategy that guarantees a positive change in capital under management in comparison with other portfolio optimization methods.
 
 #### Plans 
-- Analysis of selected stocks included in the portfolio;
-- Increase max time lag (e.g. max time lag = 5);
+- Adding other datasets like the Wharton Research Data Services (WRDS);
 - Introduction of macro-variables as confounders for excluding spurious relationships;
-- Analysis on Pinnacle dataset with non-linear methods of causal discovery;
+- Increase max time lag (e.g. max time lag = 5);
+- Analysis with non-linear methods of causal discovery;
 - Counterfactual analysis of fed rate changes;
 - Research of lead-lag dependencies for pairs trading;
