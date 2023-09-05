@@ -6,24 +6,41 @@ In the fast-paced financial world, traditional tools, while useful for asset all
 
 Find full research proposal: causal-portfolio-and-trading.pdf
 
-### Feasability study / Current status
+### Feasability study / Current results
 
-Dataset: Pinnacle ('2000-01-01' - '2021-12-13');
+Dataset: Pinnacle dataset ('2000-01-01' - '2021-12-13');
 
 Method 1. Equally Weighted Portfolio;
 
 Method 2. Portfolio optimization method: Mean Risk Portfolio Optimization (Maximizing Sharp ratio);
 
-Method 3. Causal discovery method: Granger causality (max time lag = 5);<br>
+Method 3. Causal discovery method: Granger causality (max time lag = 1);<br>
 Causal matrix construction: Summation of all time lag slices; <br>
 
 Method 4. Causal discovery method: PCMCI (max time lag = 5);<br>
 Causal matrix construction: Summation of all time lag slices; <br>
 
 Backtesting: Backtrader library; <br>
-Cash: 100000; <br>
-Commission: 0.005; <br>
-Riskfreerate: 0.0;
-Portfolio rebalancing: 22 days; <br>
-Window size: 756 days; <br>
-Expected returns (mu) & covariance matrix (cov) estimation: Historical; <br>
+- Cash: 100000; <br>
+- Commission: 0.005; <br>
+- Riskfreerate: 0.0;
+- Portfolio rebalancing: 22 days; <br>
+- Window size: 756 days; <br>
+- Expected returns (mu) & covariance matrix (cov) estimation: Historical; <br>
+
+|                                                   | E(R) | Std(R) | Sharpe | DD(R) | Sortino | MDD     |
+|---------------------------------------------------|------|--------|--------|-------|---------|---------|
+| Equally Weighted Portfolio                        |      |        |        |       |         |         |
+| Mean Risk Portfolio Optimization                  |      |        |        |       |         |         |
+| Causal Portfolio Optimization (Granger causality) |      |        |        |       |         |         |
+| Causal Portfolio Optimization (PCMCI)             |      |        | 0.52   |       | 0.71    | -33.81% |
+
+Causal Portfolio Optimization (PCMCI) offers the most effective allocation strategy that demonstrates superiority both in absolute values of the sharpe metric, and relatively the most robust strategy that guarantees a positive change in capital under management in comparison with other portfolio optimization methods.
+
+#### Plans 
+- Analysis of selected stocks included in the portfolio;
+- Increase max time lag (e.g. max time lag = 5);
+- Introduction of macro-variables as confounders for excluding spurious relationships;
+- Analysis on Pinnacle dataset with non-linear methods of causal discovery;
+- Counterfactual analysis of fed rate changes;
+- Research of lead-lag dependencies for pairs trading;
