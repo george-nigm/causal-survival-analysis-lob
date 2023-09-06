@@ -12,5 +12,7 @@ The objective of this research proposal is to rigorously explore and apply causa
 - Strengthen portfolio optimization process in the face of economic shifts.
 - Merge the causal framework with cutting-edge machine learning, especially Causal Reinforcement Learning, expanding AI's role in financial analytics.
 
-Find full research proposal: causal-portfolio-and-trading.pdf
+Find full research proposal: [Res-Prop-Nigmatulin-Causal-Portfolio-Trading.pdf](https://github.com/george-nigm/causal-portfolio-and-trading/blob/578bd06746639baee04bf917b0ab03f9a24a1d07/Res-Prop-Nigmatulin-Causal-Portfolio-Trading.pdf)
+
+
 
