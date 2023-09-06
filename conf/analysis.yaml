@@ -10,7 +10,7 @@ max_zero_days_per_future: 160
 max_zero_futures_per_day_ratio: 0.10
 
 portfolio_method_config:
-  method: 'PCMCI_wrapped' # 'MV', 'equal_weights', 'random_weights', 'grangers_causation_matrix', 'PCMCI_wrapped', 'Causal_NG', MV', 'MAD', 'MSV', 'FLPM', 'SLPM', 'CVaR', 'WR', 'MDD', 'ADD', 'CDaR'
+  method: 'MV' # 'MV', 'equal_weights', 'random_weights', 'grangers_causation_matrix', 'PCMCI_wrapped', 'Causal_NG', MV', 'MAD', 'MSV', 'FLPM', 'SLPM', 'CVaR', 'WR', 'MDD', 'ADD', 'CDaR'
   rebalancing: 22 # 22 'last_available_day_of_month', 'quarterly_last_available_day_of_month'
   window_size: 756 # 252, 756 1260
   
