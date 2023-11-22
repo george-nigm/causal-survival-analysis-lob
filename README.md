@@ -1,18 +1,18 @@
 ## Causal Inference For Portfolio Optimization And Trading
 
-In the fast-paced financial world, traditional tools, while useful for asset allocation and risk control, often fall short in determining cause-and-effect relationships, especially when influenced by macro-economic confounding factors, spurious correlations and non-linearity. Causal inference emerges as a powerful and promising solution to this challenge. This research proposal presents a shift from conventional correlation analyses to causal inference techniques for analyzing financial time-series data. The approach employs causality methods to elucidate intricate market relationships, emphasizing the potential to predict price shifts, optimize portfolios, and simulate responses to economic changes. The proposal aims to: uncover directional relationships between financial instruments and macro-economic variables; identify lead-lag interdependencies for control and pairs trading; transition from covariance matrices in portfolio optimization methods to causal matrices; enable counterfactual analysis of potential market scenarios; enhance robustness and insightful of asset allocation decisions; and integrate causal insights with cutting-edge machine learning paradigms, notably Causal Reinforcement Learning. This research holds potential to redefine investment strategies, portfolio optimization and risk management by integrating causal inference and artificial intelligence in financial analytics.
+In finance, understanding market dynamics is essential for effective trading and optimal order execution. Traditional survival analysis, used to predict how long a limit order will take to fill in the Limit Order Book (LOB), faces challenges in complex financial contexts due to its sensitivity to outliers and inability to handle non-linear market dependencies. Moreover, spurious correlations and macroeconomic factors influence the LOB, complicating accurate fill probability estimations. To enhance survival analysis, researchers explore varied survival function shapes, market feature extraction, and deep learning models. Causal inference, important in healthcare and social research, copes with these limitations by identifying directional relationships among orders, market covariates and macro conditions. Replacing traditional linear model fitting in survival curve, like Cox proportional hazards model, with Structural Equation Models can refine filltime estimates, accounting for dynamic LOB features and market changes. This approach paves the way for innovative trading techniques, utilizing the lead-lag relationships between market features to forecast and control. Also, causal inference can provide a platform for counterfactual analysis, allowing the simulation of the effects of various scenarios of exogenous shocks, economic regulatory changes and macroeconomic announcements such as federal rate adjustments. Furthermore, the endeavour of intertwining causal insights with cutting-edge machine learning methods, like Causal Reinforcement Learning, unveils the vast potential in synergizing causal inference and artificial intelligence within the financial domain. 
 
-![tg_image_1105072616](https://github.com/george-nigm/causal-portfolio-and-trading/assets/48650320/85787b4e-35c3-452e-91e3-0a64cf228e7e)
-
-The objective of this research proposal is to rigorously explore and apply causal inference techniques within the context of financial time-series data. Specifically, this research aims to:
-- Determine directional links between financial instruments and macro-economic indicators.
-- Enhance portfolio optimization by transitioning from traditional covariance matrices to causal matrices.
-- Identify and exploit lead-lag relationships among equities for advanced trading algorithms.
-- Model counterfactual responses of equities to economic shifts, like federal rate adjustments.
-- Strengthen portfolio optimization process in the face of economic shifts.
-- Merge the causal framework with cutting-edge machine learning, especially Causal Reinforcement Learning, expanding AI's role in financial analytics.
-
-Find full research proposal: [Res-Prop-Nigmatulin-Causal-Portfolio-Trading.pdf](https://github.com/george-nigm/causal-portfolio-and-trading/blob/main/Res-Prop-Nigmatulin-Causal-Portfolio-Trading.pdf)
+![tg_image_4089925758](https://github.com/george-nigm/causal-survival-analysis-lob/assets/48650320/aef1011c-ebf8-400d-8b29-04c50807cbec)
 
 
+The objective of this study is to explore causal inference techniques within the context of Limit Order Book (LOB) data. Specifically, the research aims to:
+- Determine directional links between incoming orders, market features and macro changes in LOB, 
+- Estimate Structural Equation Model (SEM) for Fill probabilities.
+- Enhance survival analysis of orders fill probabilities by estimated SEM.
+- Model counterfactual market responses to economic shifts, like federal rate adjustments.
+- Strengthen orders optimal execution process in the face of economic shifts.
+- Merge the causal framework with cutting-edge machine learning, like Causal Reinforcement Learning.
 
+The results of this work are expected to enhance survival analysis of order fill probabilities, identify lead-lag relationships among orders, market features, macro changes, facilitate counterfactual analysis, and lay the foundation for advanced machine learning models that incorporate causal insights.
+
+[Causal_Survival_Analysis_LOB.pdf](https://github.com/george-nigm/causal-survival-analysis-lob/files/13439533/Causal_Survival_Analysis_LOB.pdf)
